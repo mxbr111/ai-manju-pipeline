@@ -3,13 +3,20 @@
 LTX 12镜批量提交脚本 — 第1集《孢子》
 向 ComfyUI API (127.0.0.1:8188) 提交12个LTX渲染任务
 输出目录: ComfyUI/output/ (默认)
+
+用法:
+  python batch_ltx_submit.py
+  python batch_ltx_submit.py --workflow path/to/workflow.json --prompts path/to/prompts.json --api http://127.0.0.1:8188
+
+路径也可用环境变量: LTX_WORKFLOW_PATH / LTX_PROMPTS_FILE / COMFY_API_URL / LTX_RESULT_PATH
 """
 
-import json, urllib.request, sys, time, os, re, glob
+import json, urllib.request, sys, time, os, re, glob, argparse
 
-API_URL = "http://127.0.0.1:8188"
-WORKFLOW_PATH = r"C:\Users\Administrator\Desktop\ltx_pure_video_v3.json"
-PROMPTS_FILE = r"C:\Users\Administrator\Desktop\ltx_shot_prompts.json"
+API_URL = os.environ.get("COMFY_API_URL", "http://127.0.0.1:8188")
+WORKFLOW_PATH = os.environ.get("LTX_WORKFLOW_PATH", "ltx_pure_video_v3.json")
+PROMPTS_FILE = os.environ.get("LTX_PROMPTS_FILE", "ltx_shot_prompts.json")
+RESULT_PATH = os.environ.get("LTX_RESULT_PATH", "ltx_batch_results.json")
 
 # ========== 12个LTX镜的prompt数据 ==========
 shots = [
@@ -199,6 +206,19 @@ def wait_for_completion(prompt_id, shot_id, timeout=1800):
     return {"success": False, "error": f"Timed out after {timeout}s"}
 
 def main():
+    ap = argparse.ArgumentParser(description="LTX 批量渲染")
+    ap.add_argument("--workflow", help="工作流 JSON 路径")
+    ap.add_argument("--prompts", help="提示词 JSON 路径")
+    ap.add_argument("--api", help="ComfyUI API 地址")
+    ap.add_argument("--result", help="结果输出路径")
+    args = ap.parse_args()
+
+    global API_URL, WORKFLOW_PATH, PROMPTS_FILE, RESULT_PATH
+    if args.api: API_URL = args.api
+    if args.workflow: WORKFLOW_PATH = args.workflow
+    if args.prompts: PROMPTS_FILE = args.prompts
+    if args.result: RESULT_PATH = args.result
+
     print("=" * 60)
     print("🚀 Terra-7 E01 LTX 12镜批量渲染开始")
     print(f"⏰ {time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -243,11 +263,10 @@ def main():
     print(f"  ✅ 成功: {successes}/12")
     print(f"  ❌ 失败: {failures}/12")
     
-    # 保存结果到桌面
-    result_path = r"C:\Users\Administrator\Desktop\ltx_batch_results.json"
-    with open(result_path, 'w', encoding='utf-8') as f:
+    # 保存结果（可配置路径，默认当前目录）
+    with open(RESULT_PATH, 'w', encoding='utf-8') as f:
         json.dump({"total_elapsed_sec": total_elapsed, "results": results}, f, indent=2, ensure_ascii=False)
-    print(f"  📁 结果存: {result_path}")
+    print(f"📄 结果已保存: {RESULT_PATH}")
 
 if __name__ == "__main__":
     main()

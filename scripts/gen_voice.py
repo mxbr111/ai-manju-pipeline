@@ -17,7 +17,9 @@ import os, sys, json, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from comfy_ssh_client import ComfyClient
 
-DESKTOP = os.environ.get("DESKTOP_DIR", r"C:/Users/Administrator/Desktop")
+# 输出目录可配置（默认当前目录/voice_out，避免硬编码本机路径）
+DESKTOP = os.environ.get("DESKTOP_DIR", os.path.join(os.getcwd(), "voice_out"))
+os.makedirs(DESKTOP, exist_ok=True)
 
 # 角色音色描述 v3 (text=台词样本, instruct=音色设计描述) — 原创 IP《苟住！》
 VOICES = {
@@ -38,7 +40,7 @@ VOICES = {
 
 def build_workflow(text, instruct, role):
     """基于 Qwen3-TTS VoiceDesign 工作流模板构造提交负载（需本地模板 qwen3tts_api.json）"""
-    tpl_path = os.environ.get("TTS_WORKFLOW_TEMPLATE", r"C:/Users/Administrator/tmp_frames/qwen3tts_api.json")
+    tpl_path = os.environ.get("TTS_WORKFLOW_TEMPLATE", "qwen3tts_api.json")
     with open(tpl_path, encoding='utf-8') as f:
         wf = json.load(f)
     wf['22']['inputs']['model_path'] = 'Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign'

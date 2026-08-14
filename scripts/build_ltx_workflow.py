@@ -1,4 +1,7 @@
-import requests, json, time, sys
+import requests, json, time, sys, os
+
+# 输出路径可配置：环境变量 LTX_OUTPUT_PATH 或 --output 参数
+OUTPATH = os.environ.get("LTX_OUTPUT_PATH", "ltx_pure_video_workflow.json")
 
 prompt = {}
 
@@ -103,10 +106,9 @@ prompt["15"] = {  # SaveVideo
 }
 
 # Save workflow JSON
-outpath = "C:/Users/Administrator/Desktop/ltx_pure_video_workflow.json"
-with open(outpath, "w") as f:
+with open(OUTPATH, "w") as f:
     json.dump(prompt, f, indent=2)
-print(f"Workflow saved to {outpath}")
+print(f"Workflow saved to {OUTPATH}")
 
 # Queue
 print("Queueing prompt...")
