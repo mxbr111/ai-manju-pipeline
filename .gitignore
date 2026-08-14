@@ -1,0 +1,22 @@
+# 凭据与本地配置
+.env
+*.pem
+*_key.txt
+*_token.txt
+
+# 音频/视频大文件（不提交素材，只提交脚本/工作流/文档）
+*.wav
+*.flac
+*.mp3
+*.mp4
+*.mov
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 其他
+.DS_Store
+Thumbs.db
